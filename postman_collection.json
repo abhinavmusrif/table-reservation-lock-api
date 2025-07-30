@@ -1,0 +1,255 @@
+{
+  "info": {
+    "name": "Table Reservation Lock API",
+    "description": "Complete Postman collection for testing the Table Reservation Lock API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["health"]
+        },
+        "description": "Check if the API server is running"
+      },
+      "response": []
+    },
+    {
+      "name": "Lock Table - Success",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tableId\": \"table-123\",\n  \"userId\": \"user-abc\",\n  \"duration\": 600\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/tables/lock",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "tables", "lock"]
+        },
+        "description": "Lock a table for 10 minutes (600 seconds)"
+      },
+      "response": []
+    },
+    {
+      "name": "Lock Table - Conflict",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tableId\": \"table-123\",\n  \"userId\": \"user-def\",\n  \"duration\": 300\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/tables/lock",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "tables", "lock"]
+        },
+        "description": "Try to lock the same table with a different user (should return 409 Conflict)"
+      },
+      "response": []
+    },
+    {
+      "name": "Lock Table - Missing Fields",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tableId\": \"table-123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/tables/lock",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "tables", "lock"]
+        },
+        "description": "Try to lock a table with missing required fields (should return 400 Bad Request)"
+      },
+      "response": []
+    },
+    {
+      "name": "Check Table Status - Locked",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/tables/table-123/status",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "tables", "table-123", "status"]
+        },
+        "description": "Check if table-123 is currently locked (should return isLocked: true)"
+      },
+      "response": []
+    },
+    {
+      "name": "Check Table Status - Unlocked",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/tables/table-456/status",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "tables", "table-456", "status"]
+        },
+        "description": "Check if table-456 is currently locked (should return isLocked: false)"
+      },
+      "response": []
+    },
+    {
+      "name": "Unlock Table - Success",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tableId\": \"table-123\",\n  \"userId\": \"user-abc\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/tables/unlock",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "tables", "unlock"]
+        },
+        "description": "Unlock table-123 by the user who locked it"
+      },
+      "response": []
+    },
+    {
+      "name": "Unlock Table - Unauthorized",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tableId\": \"table-123\",\n  \"userId\": \"user-def\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/tables/unlock",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "tables", "unlock"]
+        },
+        "description": "Try to unlock table-123 with a different user (should return 403 Forbidden)"
+      },
+      "response": []
+    },
+    {
+      "name": "Unlock Table - Not Locked",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tableId\": \"table-999\",\n  \"userId\": \"user-abc\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/tables/unlock",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "tables", "unlock"]
+        },
+        "description": "Try to unlock a table that is not locked (should return 404 Not Found)"
+      },
+      "response": []
+    },
+    {
+      "name": "Test Lock Expiry",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tableId\": \"table-expiry-test\",\n  \"userId\": \"user-abc\",\n  \"duration\": 5\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/tables/lock",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "tables", "lock"]
+        },
+        "description": "Lock a table for only 5 seconds to test expiry functionality"
+      },
+      "response": []
+    },
+    {
+      "name": "Check Expired Lock",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/tables/table-expiry-test/status",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "tables", "table-expiry-test", "status"]
+        },
+        "description": "Check status of table with expired lock (wait 6+ seconds after creating the lock)"
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+} 
